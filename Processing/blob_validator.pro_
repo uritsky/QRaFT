@@ -1,0 +1,77 @@
+
+function blob_validator, IMG_lbl, blob_stat, width_range, length_range, IMG_lbl_valid, blob_stat_valid ;, intensity_min=intensity_min
+ 
+ ;; NOT USED IN CURRENT VERSION 
+  
+  ;+
+  ; NAME:
+  ;     blob_validator
+  ;
+  ; PURPOSE:
+  ;     
+  ;
+  ; CALLING SEQUENCE:
+  ;
+  ;
+  ; INPUTS:
+  ;
+  ;
+  ;
+  ; OUTPUTS:
+  ;
+  ;
+  ; RESTRICTIONS:
+  ;     none
+  ;
+  ; EXAMPLE:
+  ;
+  ;
+  ; MODIFICATION HISTORY:
+  ;       V. Uritsky, 2024 -
+  ;-
+
+
+
+
+  IMG_lbl_ = IMG_lbl & IMG_lbl_[*] = 0
+
+  ;***i_ = 0L
+  w_valid = []
+  for i=0, max(IMG_lbl)-1 do begin
+
+    w = where(IMG_lbl eq i)
+
+    if (blob_stat.width[i]  ge width_range[0]) and $
+      (blob_stat.width[i]  le width_range[1]) and $
+      (blob_stat.length[i] ge length_range[0]) and $
+      (blob_stat.length[i] le length_range[1]) then begin
+
+      ;***IMG_lbl_[w] = i_
+      ;***i_ = i_ + 1
+      w_valid = [w_valid, i]
+
+    endif
+
+  endfor
+
+  if n_elements(w_valid) eq 0 then $ ' no valid features
+    return, -1
+
+  IMG_lbl_[*] = -1
+  for i=0, n_elements(w_valid)-1 do begin
+    ; relabeling blobs with an index counting only the valid blobs
+    w = where(IMG_lbl eq w_valid[i])
+    IMG_lbl_[w] = i
+  endfor 
+
+  blob_stat_ = {width:blob_stat.width[w_valid], length:blob_stat.length[w_valid], area:blob_stat.area[w_valid], $
+    phi:blob_stat.phi[w_valid,*], phi_fit:blob_stat.phi_fit[w_valid,*], rho:blob_stat.rho[w_valid,*], $
+    status:blob_stat.status[w_valid]}
+
+  IMG_lbl_valid = IMG_lbl_
+  blob_stat_valid = blob_stat_
+
+  return, 1
+
+
+End
